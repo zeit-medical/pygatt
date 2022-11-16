@@ -169,12 +169,14 @@ class BGAPIBackend(BLEBackend):
                       attempt + 1)
             try:
                 serial_port = self._serial_port or self._detect_device_port()
+                log.debug("done with _detect_device_port")
                 self._ser = None
 
                 self._ser = serial.Serial(serial_port, baudrate=115200,
                                           timeout=0.25)
                 # Wait until we can actually read from the device
                 self._ser.read()
+                log.debug("done with self._ser.read()")
                 break
             except serial_exceptions:
                 log.debug("Failed to open serial port", exc_info=True)
@@ -215,7 +217,9 @@ class BGAPIBackend(BLEBackend):
                 "Resetting and reconnecting to device for a clean environment")
             self._open_serial_port()
             self.send_command(CommandBuilder.system_reset(0))
+            log.debug("done w send_command(CommandBuilder.system_reset(0))")
             self._ser.close()
+            log.debug("done _ser.close()")
 
             # The USB device does not re-appear instantly
             time.sleep(delay_after_reset_s)
@@ -226,10 +230,14 @@ class BGAPIBackend(BLEBackend):
 
         self._running = threading.Event()
         self._running.set()
+        log.debug("done set_bondable")
         self._receiver.start()
+        log.debug("done set_bondable")
 
         self.disable_advertising()
+        log.debug("done w disable_advertising")
         self.set_bondable(False)
+        log.debug("done set_bondable")
 
         # Stop any ongoing procedure
         log.debug("Stopping any outstanding GAP procedure")
@@ -239,7 +247,7 @@ class BGAPIBackend(BLEBackend):
         except BGAPIError:
             # Ignore any errors if there was no GAP procedure running
             pass
-
+        log.debug("exiting Bgapi.start()")
     def get_mac(self):
         self.send_command(CommandBuilder.system_address_get())
         self.expect(ResponsePacketType.system_address_get)
