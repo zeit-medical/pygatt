@@ -30,7 +30,8 @@ clean:
 		test-result.xml htmlcov fab.log .coverage
 
 publish:
-	python setup.py register sdist upload
+	python setup.py sdist
+	twine upload --repository-url https://pypi.tempzeit.com/ dist/*  -u zeit
 
 test:
 	tox
